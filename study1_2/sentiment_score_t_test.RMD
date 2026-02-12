@@ -1,0 +1,85 @@
+---
+title: "Sentiment Score Analysis"
+author: ""
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "data/output/"
+    )
+  })
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6
+)
+```
+```{r libraries}
+library(readxl)
+```
+```{r global-settings}
+# === 全局路径设置 ===
+# 您只需要在这里修改一次路径
+root_path <- "data/output/"
+```
+```{r analysis-function}
+# === 定义通用分析函数 ===
+# 该函数接收文件名和变量名，自动完成读取、分组和T检验
+run_analysis <- function(file_name, target_var) {
+  
+  # 1. 构建完整路径
+  full_path <- paste0(root_path, file_name)
+  
+  # 2. 检查文件是否存在（防止报错）
+  if (!file.exists(full_path)) {
+    cat(paste("错误：找不到文件 -", full_path, "\n"))
+    return(NULL)
+  }
+  
+  # 3. 读取数据
+  data_df <- read_excel(full_path)
+  
+  # 4. 确保 group 是因子
+  if("group" %in% names(data_df)) {
+    data_df$group <- as.factor(data_df$group)
+  } else {
+    cat("错误：数据中缺少 'group' 列\n")
+    return(NULL)
+  }
+  
+  # 5. 打印美观的分割线
+  cat("\n========================================================\n")
+  cat("正在分析文件: ", file_name, "\n")
+  cat("分析指标 (Target): ", target_var, "\n")
+  cat("--------------------------------------------------------\n")
+  
+  # 6. 动态构建公式并运行 t.test
+  # 因为 target_var 是字符串，需要用 as.formula 转换
+  formula_str <- paste(target_var, "~ group")
+  test_result <- t.test(as.formula(formula_str), data = data_df)
+  
+  # 7. 输出结果
+  print(test_result)
+}
+```
+```{r run-analysis}
+# 1. 所有行业
+run_analysis(file_name = "all_business_sentiment.xlsx", 
+             target_var = "sentiment_score")
+
+# 2. 餐饮业
+run_analysis(file_name = "restaurant_sentiment.xlsx", 
+             target_var = "sentiment_score")
+
+# 3. 饮品业
+run_analysis(file_name = "drink_sentiment.xlsx",
+             target_var = "sentiment_score")
+```

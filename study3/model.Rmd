@@ -1,0 +1,138 @@
+---
+title: "Linear Mixed Model Analysis Report"
+author: ""
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "data/output/"
+    )
+  })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6
+)
+```
+
+# Introduction
+
+This report presents the results of a linear mixed-effects model analysis examining the relationship between memory scores and other variables on participant scores.
+
+# Setup and Data Loading
+
+## Load Required Libraries
+
+```{r libraries}
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(multcomp)
+library(quantreg)
+```
+
+## Load and Prepare Data
+
+```{r data-loading}
+# Read data
+df <- read.csv("data/input/final_data_order_all.csv")
+
+# Convert categorical variables to factors
+df$participant <- factor(df$participant)
+df$type <- factor(df$type)
+df$image_id <- factor(df$image_id)
+
+# Display data structure
+str(df)
+```
+
+```{r data-summary}
+# Summary statistics
+summary(df)
+```
+
+# Linear Mixed-Effects Model
+
+## Model Specification
+
+We fit a linear mixed-effects model with:
+
+- **Fixed effects**: memory_score, type, quality, attract, image_memory_order, food_order, mood, and the interaction between memory_score and type
+- **Random effects**: Random intercept and random slope for memory_score by participant
+
+```{r lmer-model}
+m_lmer <- lmer(
+  score ~ memory_score * type +
+    quality + attract + image_memory_order + food_order + mood +
+    (1 + memory_score | participant),
+  data = df,
+  REML = TRUE
+)
+```
+
+## Model Summary
+
+```{r model-summary}
+summary(m_lmer)
+```
+
+## Confidence Intervals
+
+```{r confidence-intervals}
+confint(m_lmer, method = "Wald")
+```
+
+# ANOVA Analysis
+
+## Type III ANOVA (lmerTest)
+
+```{r anova-analysis}
+anova_lmerTest <- anova(m_lmer)
+print("=== lmerTest ANOVA Results ===")
+print(anova_lmerTest)
+```
+
+# Post-hoc Analysis
+
+## Estimated Marginal Means
+
+```{r emmeans}
+emm_type <- emmeans(m_lmer, ~ memory_score)
+print(emm_type)
+```
+
+## Pairwise Comparisons (Tukey)
+
+```{r tukey-pairs}
+pairs_tukey <- pairs(emm_type, adjust = "tukey")
+print(pairs_tukey)
+```
+
+## Effect Sizes
+
+```{r effect-sizes}
+eff_tukey <- eff_size(emm_type, sigma = sigma(m_lmer), edf = df.residual(m_lmer))
+print(eff_tukey)
+```
+
+# Quantile Regression
+
+## Median Regression (τ = 0.5)
+
+```{r quantile-regression}
+formula <- score ~ memory_score * type + quality + attract + image_memory_order + food_order + mood
+
+quant_model_median <- rq(formula, tau = 0.5, data = df)
+set.seed(123)
+summary(quant_model_median, se = "boot", R = 1000)
+```
+
