@@ -47,9 +47,19 @@ library(quantreg)
 df <- read.csv("data/input/final_data_order_all.csv")
 
 # Convert categorical variables to factors
+#df$participant <- factor(df$participant)
+#df$type <- factor(df$type)
+#df$image_id <- factor(df$image_id)
+
+# Convert categorical variables to factors with explicit reference levels
 df$participant <- factor(df$participant)
-df$type <- factor(df$type)
+df$type <- factor(df$type, levels = c("cake","donut","sandwich","wine"))
 df$image_id <- factor(df$image_id)
+df$memory_score <- factor(df$memory_score, levels = c("high","low"))
+df$quality <- factor(df$quality, levels = c("低质量","中质量","高质量"))
+df$attract <- factor(df$attract, levels = c("无区别","无吸引力","有吸引力"))
+df$mood <- factor(df$mood, levels = c("非常负面","负面","中立","正面","非常正面"))
+
 
 # Display data structure
 str(df)

@@ -141,7 +141,7 @@ This notebook performs:
 
 STEP 3: Run IV Validity Tests (Optional)
 ----------------------------------------
-Execute from command line:
+Run from the study1_2 directory: execute from command line:
   python run_iv_tests.py all (restaurant, all business and drink)
 
 Or for specific subsamples:
