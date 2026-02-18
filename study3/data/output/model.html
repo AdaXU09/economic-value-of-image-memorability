@@ -11,7 +11,7 @@
 
 <meta name="author" content />
 
-<meta name="date" content="2026-02-13" />
+<meta name="date" content="2026-02-15" />
 
 <title>Linear Mixed Model Analysis Report</title>
 
@@ -1481,7 +1481,7 @@ border-radius: 0px;
 
 <h1 class="title toc-ignore">Linear Mixed Model Analysis Report</h1>
 <h4 class="author"></h4>
-<h4 class="date">2026-02-13</h4>
+<h4 class="date">2026-02-15</h4>
 
 </div>
 
@@ -1725,6 +1725,53 @@ print(eff_tukey)</code></pre>
 ## sigma used for effect sizes: 6.639 
 ## Degrees-of-freedom method: inherited from kenward-roger when re-gridding 
 ## Confidence level used: 0.95</code></pre>
+</div>
+<div id="conventional-paired-cohens-d" class="section level2">
+<h2>Conventional Paired Cohen’s d</h2>
+<p>The model-based d above uses the LME residual SD as the denominator
+(emmeans::eff_size). Below we compute the conventional paired-samples
+Cohen’s d = mean(within-subject differences) / SD(within-subject
+differences).</p>
+<pre class="r"><code># Compute within-participant paired WTP differences (high - low memorability)
+# Each participant has one score per memorability level per food type,
+# so we pivot to wide format and subtract.
+
+df_wide &lt;- reshape(
+  df[, c(&quot;participant&quot;, &quot;memory_score&quot;, &quot;type&quot;, &quot;score&quot;)],
+  idvar = c(&quot;participant&quot;, &quot;type&quot;),
+  timevar = &quot;memory_score&quot;,
+  v.names = &quot;score&quot;,
+  direction = &quot;wide&quot;
+)
+
+# Within-participant difference per category (high - low)
+df_wide$diff &lt;- df_wide$score.high - df_wide$score.low
+
+# Overall paired d: average the 4 category diffs per participant, then compute d
+participant_mean_diff &lt;- tapply(df_wide$diff, df_wide$participant, mean)
+paired_d_overall &lt;- mean(participant_mean_diff) / sd(participant_mean_diff)
+
+cat(&quot;=== Conventional Paired Cohen&#39;s d (per-participant average across categories) ===\n&quot;)</code></pre>
+<pre><code>## === Conventional Paired Cohen&#39;s d (per-participant average across categories) ===</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  Mean within-participant diff = %.3f\n&quot;, mean(participant_mean_diff)))</code></pre>
+<pre><code>##   Mean within-participant diff = 6.224</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  SD of within-participant diffs = %.3f\n&quot;, sd(participant_mean_diff)))</code></pre>
+<pre><code>##   SD of within-participant diffs = 9.531</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  Paired d = %.3f\n\n&quot;, paired_d_overall))</code></pre>
+<pre><code>##   Paired d = 0.653</code></pre>
+<pre class="r"><code># Per-category paired d
+cat(&quot;=== Per-category Paired Cohen&#39;s d ===\n&quot;)</code></pre>
+<pre><code>## === Per-category Paired Cohen&#39;s d ===</code></pre>
+<pre class="r"><code>for (tp in levels(df$type)) {
+  diffs_cat &lt;- df_wide$diff[df_wide$type == tp]
+  d_cat &lt;- mean(diffs_cat) / sd(diffs_cat)
+  cat(sprintf(&quot;  %s: mean diff = %.3f, SD = %.3f, paired d = %.3f\n&quot;,
+              tp, mean(diffs_cat), sd(diffs_cat), d_cat))
+}</code></pre>
+<pre><code>##   cake: mean diff = 8.832, SD = 12.708, paired d = 0.695
+##   donut: mean diff = 8.127, SD = 11.320, paired d = 0.718
+##   sandwich: mean diff = 4.519, SD = 12.612, paired d = 0.358
+##   wine: mean diff = 3.418, SD = 12.090, paired d = 0.283</code></pre>
 </div>
 </div>
 <div id="quantile-regression" class="section level1">

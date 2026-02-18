@@ -1,0 +1,60 @@
+\begin{table}[htbp]
+\centering
+\caption{Person Presence Rates and Average Memorability by Image Content Type}
+\label{tab:person_content_crosstab}
+\small
+\begin{tabular}{l r r r r r}
+\toprule
+Content type & $N$ & \% of sample & Person present (\%) & Mean memorability & (SD) \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel A: All businesses}} \\
+\midrule
+  Food       & 84,788 & 54.7\% & 17.0\% & 0.788 & (0.082) \\
+  Inside     & 42,935 & 27.7\% & 63.0\% & 0.669 & (0.100) \\
+  Drink      & 13,338 & 8.6\% & 25.0\% & 0.831 & (0.072) \\
+  Outside    & 12,885 & 8.3\% & 50.7\% & 0.691 & (0.103) \\
+  Menu       & 999 & 0.6\% & 16.0\% & 0.826 & (0.069) \\
+  \midrule
+  Overall    & 154,945 & 100.0\% & 33.2\% & 0.751 & (0.106) \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel B: Restaurants}} \\
+\midrule
+  Food       & 77,784 & 59.1\% & 16.4\% & 0.784 & (0.081) \\
+  Inside     & 33,395 & 25.4\% & 63.1\% & 0.660 & (0.097) \\
+  Drink      & 9,397 & 7.1\% & 26.6\% & 0.826 & (0.074) \\
+  Outside    & 10,162 & 7.7\% & 50.0\% & 0.689 & (0.103) \\
+  Menu       & 886 & 0.7\% & 16.0\% & 0.828 & (0.068) \\
+  \midrule
+  Overall    & 131,624 & 100.0\% & 31.6\% & 0.748 & (0.105) \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel C: Drink-related}} \\
+\midrule
+  Food       & 30,557 & 43.9\% & 17.6\% & 0.782 & (0.083) \\
+  Inside     & 23,140 & 33.3\% & 65.6\% & 0.663 & (0.099) \\
+  Drink      & 9,329 & 13.4\% & 24.9\% & 0.832 & (0.071) \\
+  Outside    & 6,117 & 8.8\% & 52.8\% & 0.677 & (0.101) \\
+  Menu       & 405 & 0.6\% & 20.0\% & 0.825 & (0.073) \\
+  \midrule
+  Overall    & 69,548 & 100.0\% & 37.6\% & 0.740 & (0.110) \\
+\midrule
+\multicolumn{6}{l}{\textit{Panel D: Other businesses}} \\
+\midrule
+  Food       & 4,041 & 39.1\% & 28.5\% & 0.846 & (0.074) \\
+  Inside     & 3,882 & 37.6\% & 55.3\% & 0.723 & (0.100) \\
+  Drink      & 780 & 7.6\% & 24.6\% & 0.842 & (0.066) \\
+  Outside    & 1,572 & 15.2\% & 54.0\% & 0.711 & (0.102) \\
+  Menu       & 56 & 0.5\% & 8.9\% & 0.830 & (0.066) \\
+  \midrule
+  Overall    & 10,331 & 100.0\% & 42.0\% & 0.779 & (0.108) \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{\textwidth}
+\vspace{4pt}
+\footnotesize
+\textit{Note.} Each panel reports one subsample. ``Person present'' is the percentage of images
+in that content category containing at least one YOLO-detected person. ``Other businesses'' are establishments outside
+the restaurant and drink categories (retail, services, entertainment, etc.). People appear
+disproportionately in interior shots across all subsamples, and inside images
+carry the lowest average memorability (sede figure 2).
+\end{minipage}
+\end{table}

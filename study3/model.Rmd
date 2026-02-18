@@ -133,7 +133,45 @@ print(pairs_tukey)
 eff_tukey <- eff_size(emm_type, sigma = sigma(m_lmer), edf = df.residual(m_lmer))
 print(eff_tukey)
 ```
+## Conventional Paired Cohen's d
 
+The model-based d above uses the LME residual SD as the denominator (emmeans::eff_size).
+Below we compute the conventional paired-samples Cohen's d = mean(within-subject differences) / SD(within-subject differences).
+
+```{r conventional-paired-d}
+# Compute within-participant paired WTP differences (high - low memorability)
+# Each participant has one score per memorability level per food type,
+# so we pivot to wide format and subtract.
+
+df_wide <- reshape(
+  df[, c("participant", "memory_score", "type", "score")],
+  idvar = c("participant", "type"),
+  timevar = "memory_score",
+  v.names = "score",
+  direction = "wide"
+)
+
+# Within-participant difference per category (high - low)
+df_wide$diff <- df_wide$score.high - df_wide$score.low
+
+# Overall paired d: average the 4 category diffs per participant, then compute d
+participant_mean_diff <- tapply(df_wide$diff, df_wide$participant, mean)
+paired_d_overall <- mean(participant_mean_diff) / sd(participant_mean_diff)
+
+cat("=== Conventional Paired Cohen's d (per-participant average across categories) ===\n")
+cat(sprintf("  Mean within-participant diff = %.3f\n", mean(participant_mean_diff)))
+cat(sprintf("  SD of within-participant diffs = %.3f\n", sd(participant_mean_diff)))
+cat(sprintf("  Paired d = %.3f\n\n", paired_d_overall))
+
+# Per-category paired d
+cat("=== Per-category Paired Cohen's d ===\n")
+for (tp in levels(df$type)) {
+  diffs_cat <- df_wide$diff[df_wide$type == tp]
+  d_cat <- mean(diffs_cat) / sd(diffs_cat)
+  cat(sprintf("  %s: mean diff = %.3f, SD = %.3f, paired d = %.3f\n",
+              tp, mean(diffs_cat), sd(diffs_cat), d_cat))
+}
+```
 # Quantile Regression
 
 ## Median Regression (τ = 0.5)

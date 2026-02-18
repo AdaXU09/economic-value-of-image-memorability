@@ -9,11 +9,12 @@ def prepare_data(data: pd.DataFrame) -> pd.DataFrame:
     """通用数据预处理"""
     data['review_group'] = pd.qcut(data['review_count'], q=[0, 2/3, 1], labels=['low', 'high'])
     data['review_high'] = (data['review_group'] == 'high').astype(int)
+    data['memory_score'] = data['memory_score'] - data['memory_score'].mean()
     data["memory_score_review_high"] = data['memory_score'] * data['review_high']
     data["average_hue_review_high"] = data['average_hue'] * data['review_high']
     data["sharpness_measure_review_high"] = data['sharpness_measure'] * data['review_high']
     data["person_total_count_review_high"] = data['person_total_count_x'] * data['review_high']
-    data['log_review_count'] = np.log(data['review_count'])
+    data['log_photo_count'] = np.log(data['photo_count'])
     return data
 
 
@@ -34,7 +35,7 @@ def run_restaurant_iv_test():
         controls=[
             'categories_counts', 'average_hue', 'average_saturation', 'average_value',
             'food', 'drink', 'menu', 'inside',
-            'var', 'person_exist', 'beauty_score', 'review_high', 'log_review_count'
+            'var', 'person_exist', 'beauty_score', 'review_high', 'log_photo_count'
         ]
     )
 
@@ -66,7 +67,7 @@ def run_business_iv_test():
         controls=[
             'categories_counts', 'average_hue', 'average_saturation', 'average_value',
             'food', 'drink', 'menu', 'inside',
-            'var', 'person_exist', 'beauty_score', 'review_high', 'log_review_count'
+            'var', 'person_exist', 'beauty_score', 'review_high', 'log_photo_count'
         ]
     )
 
@@ -98,7 +99,7 @@ def run_drink_iv_test():
         controls=[
             'categories_counts', 'var', 'average_saturation', 'average_value',
             'food', 'drink', 'menu', 'inside',
-            'person_exist', 'beauty_score', 'review_high', 'log_review_count', 'sharpness_measure'
+            'person_exist', 'beauty_score', 'review_high', 'log_photo_count', 'sharpness_measure'
         ]
     )
 

@@ -1,0 +1,44 @@
+\begin{table}[htbp]
+\centering
+\caption{Conditional Composition Robustness: People-Present Subsample (Study 1)}
+\label{tab:cond_comp}
+\small
+\begin{tabular}{l c c c}
+\toprule
+ & All businesses & Restaurants & Drinks \\
+\midrule
+const & 0.6452*** & 0.6736*** & 0.5980*** \\
+ & (0.0097) & (0.0116) & (0.0173) \\
+food & 0.0707*** & 0.0696*** & 0.0696*** \\
+ & (0.0022) & (0.0026) & (0.0031) \\
+menu & 0.1161*** & 0.1180*** & 0.1300*** \\
+ & (0.0067) & (0.0071) & (0.0103) \\
+inside & 0.0038 & 0.0001 & 0.0082* \\
+ & (0.0023) & (0.0028) & (0.0034) \\
+drink & 0.1109*** & 0.1122*** & 0.1195*** \\
+ & (0.0024) & (0.0029) & (0.0032) \\
+average\_hue\_s & 0.0078*** & 0.0063*** & 0.0074*** \\
+ & (0.0005) & (0.0007) & (0.0008) \\
+average\_saturation\_s & -0.0012* & -0.0001 & -0.0001 \\
+ & (0.0005) & (0.0006) & (0.0007) \\
+average\_value\_s & 0.0227*** & 0.0217*** & 0.0214*** \\
+ & (0.0005) & (0.0006) & (0.0008) \\
+var & -0.0093*** & -0.0109*** & -0.0152*** \\
+ & (0.0016) & (0.0019) & (0.0025) \\
+person\_total\_count & -0.0038*** & -0.0036*** & -0.0038*** \\
+ & (0.0001) & (0.0001) & (0.0001) \\
+beauty\_score & 0.0147*** & 0.0082*** & 0.0226*** \\
+ & (0.0019) & (0.0024) & (0.0035) \\
+sharpness\_measure\_s & -0.0046*** & -0.0028*** & -0.0052*** \\
+ & (0.0005) & (0.0006) & (0.0008) \\
+\midrule
+$N$ & 51,505 & 41,596 & 26,183 \\
+$R^2$ & 0.334 & 0.338 & 0.323 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{\textwidth}
+\vspace{4pt}
+\footnotesize
+\textit{Note.} Standard errors clustered by business (in parentheses). $^\dagger p < .10$, $^* p < .05$, $^{**} p < .01$, $^{***} p < .001$.
+\end{minipage}
+\end{table}

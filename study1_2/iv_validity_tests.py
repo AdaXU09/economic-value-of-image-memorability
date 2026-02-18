@@ -443,6 +443,123 @@ class IVValidityTests:
         return exchangeability_results
 
 
+    def test_reduced_form(self, verbose: bool = True) -> Dict:
+        """
+        Reduced-Form Analysis: Y ~ Z + X (no endogenous variables)
+
+        Shows the total effect of instruments on the outcome.
+        If exclusion holds, the effect of Z on Y operates entirely through D.
+
+        Compares actual reduced-form coefficients with implied values:
+            implied_j = Σ_k (first-stage coef of Z_j on D_k) × (2SLS coef of D_k)
+        Ratio ≈ 1.0 supports exclusion restriction.
+        """
+        if verbose:
+            print("\n" + "=" * 80)
+            print("【Reduced-Form Analysis】Y ~ Z + X")
+            print("=" * 80)
+            print("\n说明: 将因变量直接回归到工具变量和控制变量上（不包含内生变量）")
+            print("如果排他性约束成立，Z对Y的影响应完全通过内生变量传导")
+
+        rf_results = {}
+
+        # Reduced-form regression: Y ~ Z + X
+        X_rf = sm.add_constant(self.data[self.all_instruments + self.controls])
+        y_rf = self.data[self.outcome]
+        rf_model = sm.OLS(y_rf, X_rf).fit(cov_type='HC1')
+
+        # Joint F-test on instruments
+        r_matrix = np.zeros((len(self.all_instruments), len(rf_model.params)))
+        for i, iv in enumerate(self.all_instruments):
+            if iv in rf_model.params.index:
+                r_matrix[i, rf_model.params.index.get_loc(iv)] = 1
+
+        f_test = rf_model.f_test(r_matrix)
+        f_stat = self._safe_float(f_test.fvalue)
+        f_pval = self._safe_float(f_test.pvalue)
+
+        if verbose:
+            print(f"\nReduced-form regression:")
+            print(f"  R-squared: {rf_model.rsquared:.4f}")
+            print(f"  Joint F-test of instruments: F = {f_stat:.4f}, p = {f_pval:.6f}")
+
+        # Individual instrument coefficients
+        iv_coefficients = {}
+        if verbose:
+            print(f"\n各工具变量的Reduced-form系数:")
+
+        for iv in self.all_instruments:
+            if iv in rf_model.params.index:
+                coef = rf_model.params[iv]
+                se = rf_model.bse[iv]
+                t_stat = rf_model.tvalues[iv]
+                p_val = rf_model.pvalues[iv]
+                sig = "***" if p_val < 0.01 else "**" if p_val < 0.05 else "*" if p_val < 0.1 else ""
+                iv_coefficients[iv] = {
+                    'coef': coef, 'se': se, 't_stat': t_stat, 'p_value': p_val
+                }
+                if verbose:
+                    print(f"  {iv}: β={coef:.6f} (SE={se:.6f}), t={t_stat:.3f}, p={p_val:.4f} {sig}")
+
+        # Compare actual vs implied reduced-form coefficients
+        if 'relevance' in self.results and 'model_2sls' in self.results:
+            if verbose:
+                print(f"\n" + "-" * 80)
+                print("Actual vs. Implied Reduced-Form Coefficients")
+                print("-" * 80)
+                print("Implied_j = Σ_k (first-stage coef of Z_j on D_k) × (2SLS coef of D_k)")
+                print("Ratio ≈ 1.0 supports exclusion restriction\n")
+
+            model_2sls = self.results['model_2sls']
+            comparison = {}
+
+            for iv in self.all_instruments:
+                implied = 0.0
+                components = []
+                for endog in self.endogenous:
+                    fs_model = self.results['relevance'][endog]['first_stage_model']
+                    if iv in fs_model.params.index and endog in model_2sls.params.index:
+                        alpha = fs_model.params[iv]
+                        delta = model_2sls.params[endog]
+                        implied += alpha * delta
+                        components.append((endog, alpha, delta))
+
+                actual = iv_coefficients[iv]['coef'] if iv in iv_coefficients else 0
+                ratio = actual / implied if abs(implied) > 1e-10 else float('nan')
+
+                comparison[iv] = {
+                    'actual': actual,
+                    'implied': implied,
+                    'ratio': ratio
+                }
+
+                if verbose:
+                    print(f"  {iv}:")
+                    for endog_name, alpha, delta in components:
+                        print(f"    {endog_name}: α={alpha:.6f} × δ={delta:.4f} = {alpha*delta:.6f}")
+                    print(f"    Actual RF coef:  {actual:.6f}")
+                    print(f"    Implied RF coef: {implied:.6f}")
+                    if not np.isnan(ratio):
+                        print(f"    Ratio (actual/implied): {ratio:.4f}")
+                        if 0.5 <= ratio <= 2.0:
+                            print(f"    [CONSISTENT] Ratio within [0.5, 2.0]")
+                        else:
+                            print(f"    [INCONSISTENT] Ratio outside [0.5, 2.0]")
+                    else:
+                        print(f"    Ratio: N/A (implied ≈ 0)")
+                    print()
+
+            rf_results['comparison'] = comparison
+
+        rf_results['model'] = rf_model
+        rf_results['f_stat'] = f_stat
+        rf_results['f_pval'] = f_pval
+        rf_results['iv_coefficients'] = iv_coefficients
+
+        self.results['reduced_form'] = rf_results
+        return rf_results
+
+
     def run_all_tests(self, verbose: bool = True) -> Dict:
         """
         运行所有三个条件的检验
@@ -460,6 +577,12 @@ class IVValidityTests:
         relevance_results = self.test_relevance(verbose=verbose)
         exclusion_results = self.test_exclusion_restriction(verbose=verbose)
         exchangeability_results = self.test_exchangeability(verbose=verbose)
+
+        # Estimate 2SLS (quietly) for reduced-form comparison
+        self.estimate_2sls(verbose=False)
+
+        # Reduced-form analysis
+        self.test_reduced_form(verbose=verbose)
 
         # 生成综合报告
         self.generate_comprehensive_report()
@@ -535,6 +658,23 @@ class IVValidityTests:
             else:
                 print("   残差预测检验: [WARN] Z预测残差")
                 exchangeability_pass = False
+
+        # Reduced-form consistency
+        reduced_form_results = self.results.get('reduced_form', {})
+        if reduced_form_results:
+            print("\n4. REDUCED FORM (简约式一致性检验)")
+            print("   Y ~ Z + X (不含内生变量)")
+            rf_f = reduced_form_results.get('f_stat', 0)
+            rf_p = reduced_form_results.get('f_pval', 1)
+            print(f"   Joint F-test: F = {rf_f:.2f}, p = {rf_p:.4f}")
+            if reduced_form_results.get('comparison'):
+                for iv, comp in reduced_form_results['comparison'].items():
+                    ratio = comp['ratio']
+                    if not np.isnan(ratio):
+                        status = "[CONSISTENT]" if 0.5 <= ratio <= 2.0 else "[INCONSISTENT]"
+                        print(f"   {iv}: actual/implied = {ratio:.2f} {status}")
+                    else:
+                        print(f"   {iv}: ratio N/A (implied ≈ 0)")
 
         # 总体结论
         print("\n" + "=" * 80)
@@ -657,6 +797,31 @@ class IVValidityTests:
                 'P-value': f"{exchangeability_results['residual_p_value']:.4f}",
                 '判断': '[PASS] 通过' if exchangeability_results['residual_independent'] else '[WARN] 预测残差'
             })
+
+        # Reduced-form results
+        rf_results = self.results.get('reduced_form', {})
+        if rf_results:
+            summary_data.append({
+                '检验类型': 'Reduced Form (Joint F)',
+                '变量': 'All IVs',
+                '统计量': f"F = {rf_results['f_stat']:.2f}",
+                'P-value': f"{rf_results['f_pval']:.4f}",
+                '判断': '[PASS] 显著' if rf_results['f_pval'] < 0.05 else '[WARN] 不显著'
+            })
+            if rf_results.get('comparison'):
+                for iv, comp in rf_results['comparison'].items():
+                    ratio = comp['ratio']
+                    if not np.isnan(ratio):
+                        status = '[CONSISTENT]' if 0.5 <= ratio <= 2.0 else '[INCONSISTENT]'
+                    else:
+                        status = 'N/A'
+                    summary_data.append({
+                        '检验类型': f'Reduced Form (ratio)',
+                        '变量': iv,
+                        '统计量': f"ratio = {ratio:.2f}" if not np.isnan(ratio) else "N/A",
+                        'P-value': '-',
+                        '判断': status
+                    })
 
         summary_df = pd.DataFrame(summary_data)
         return summary_df

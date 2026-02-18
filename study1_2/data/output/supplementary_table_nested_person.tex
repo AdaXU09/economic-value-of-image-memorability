@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\caption{Person Presence--Memorability Relationship: Nested Model Comparison}
+\label{tab:nested_person}
+\small
+\begin{tabular}{l r r r r r r r}
+\toprule
+ & & & \multicolumn{2}{c}{Model A} & \multicolumn{2}{c}{Model B} & \\
+\cmidrule(lr){4-5} \cmidrule(lr){6-7}
+Sample & $N$ & Clusters & $\hat{\beta}$ & (SE) & $\hat{\beta}$ & (SE) & $\Delta\hat{\beta}$ \\
+\midrule
+  All businesses & 154,945 & 27,075 & -0.0184*** & (0.0012) & 0.0050*** & (0.0012) & +0.0234 \\
+  Restaurants & 131,624 & 21,279 & -0.0189*** & (0.0014) & 0.0018 & (0.0015) & +0.0207 \\
+  Drink-related & 69,548 & 9,853 & -0.0210*** & (0.0020) & 0.0036$^\dagger$ & (0.0021) & +0.0246 \\
+  Other businesses & 10,331 & 2,969 & -0.0203*** & (0.0039) & 0.0109** & (0.0034) & +0.0312 \\
+\bottomrule
+\end{tabular}
+\begin{minipage}{\textwidth}
+\vspace{4pt}
+\footnotesize
+\textit{Note.} Model~A regresses image memorability on colour properties (hue, saturation,
+brightness), sharpness, aesthetic quality, person presence, people--object imbalance,
+and total object count, \textit{without} content-category indicators. Model~B adds four
+content-type dummies (food, menu, inside, drink; outside is the reference category).
+Both models use OLS with standard errors clustered at the business level.
+$\Delta\hat{\beta} = \hat{\beta}_B - \hat{\beta}_A$ captures the change in the
+person-presence coefficient when content type is controlled. The sign reversal from
+negative (Model~A) to positive (Model~B) across all four subsamples constitutes a paradox: images containing people are disproportionately interior shots,
+which have lower memorability, so the unconditional association is negative. Once
+content type is controlled, person presence is associated with modestly
+\textit{higher} memorability. The conditional effect is largest for non-restaurant,
+non-drink businesses, where human figures are less routine and more visually distinctive.
+$^\dagger p < .10$, $^* p < .05$, $^{**} p < .01$, $^{***} p < .001$.
+\end{minipage}
+\end{table}
