@@ -61,10 +61,22 @@ X_BREAKS       <- seq(0.6, 0.9, by = 0.1)
 theme_house_style <- function() {
   theme_classic(base_size = FONT_SIZE_PT, base_family = FONT_FAMILY) +
     theme(
-      text = element_text(color = "black"),
-      axis.title = element_text(face = "plain"),
-      axis.text = element_text(color = "black"),
-      plot.title = element_text(size = FONT_SIZE_PT, face = "plain", hjust = 0.5),
+      text = element_text(color = "black", size = FONT_SIZE_PT), # Base setting
+      
+      # 1. FORCE AXIS TITLES (X and Y labels)
+      axis.title = element_text(size = FONT_SIZE_PT, face = "plain", color = "black"),
+      
+      # 2. FORCE AXIS TEXT (The numbers 2, 3, 4, 5 and 0.6, 0.7...)
+      # By default, these are often scaled down to ~11pt. This fixes it to 14pt.
+      axis.text = element_text(size = FONT_SIZE_PT, color = "black"),
+      axis.text.x = element_text(size = FONT_SIZE_PT, color = "black", angle = 45, hjust = 1),
+      
+      # 3. FORCE PLOT TITLES ("All businesses", "Restaurants", etc.)
+      plot.title = element_text(size = FONT_SIZE_PT, face = "plain", hjust = 0.5, color = "black"),
+      
+      # 4. FORCE LEGEND TEXT
+      legend.text = element_text(size = FONT_SIZE_PT, color = "black"),
+      legend.title = element_text(size = FONT_SIZE_PT, color = "black"),
       
       # House style lines
       axis.line = element_line(color = "black", linewidth = LINE_WIDTH),
@@ -153,7 +165,7 @@ create_base_plot <- function(data, title_text, show_y_axis = TRUE, show_legend =
   # Conditional Legend Placement (Center plot only)
   if (show_legend) {
     p <- p + theme(
-      legend.position = c(0.5, 0.22),
+      legend.position = c(0.5, 0.25),
       legend.title = element_blank(),
       legend.text = element_text(size = FONT_SIZE_PT),
       legend.key.height = unit(0.8, "cm"),
@@ -181,7 +193,7 @@ p1 <- create_base_plot(df_all, "All businesses", show_y_axis = TRUE, show_legend
 p2 <- create_base_plot(df_rest, "Restaurants", show_y_axis = FALSE, show_legend = TRUE) +
   labs(x = "Image memorability") +
   theme(
-    legend.position = c(0.5, 0.15),
+    legend.position = c(0.40, 0.15),
     legend.direction = "vertical",
     legend.spacing.y = unit(0, "pt")
   )
@@ -200,8 +212,8 @@ p3 <- create_base_plot(df_drnk, "Drinks", show_y_axis = FALSE, show_legend = FAL
 p_combined <- grid.arrange(p1, p2, p3, nrow = 1, widths = c(1.13, 1, 1))
 
 # Save Dimensions
-FIG_WIDTH  <- 10
-FIG_HEIGHT <- 5
+FIG_WIDTH  <- 10*0.8
+FIG_HEIGHT <- 5*0.8
 
 # Determine the best available PDF device
 save_device <- tryCatch(

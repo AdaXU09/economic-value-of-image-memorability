@@ -65,13 +65,19 @@ COL_GROUP <- c(
   "Drinks"         = "#009E73"   # Bluish Green
 )
 
+COL_GROUP_LIGHT <- c(
+  "All businesses" = "#F4C29F",
+  "Restaurants"    = "#99C6E0",
+  "Drinks"         = "#99D8C5"
+)
+
 # Axis
-Y_LIMITS <- c(0.60, 1.00)
-Y_BREAKS <- seq(0.60, 1.00, 0.10)
+Y_LIMITS <- c(0.5, 1)
+Y_BREAKS <- seq(0.5, 1, 0.10)
 
 # I/O
-FIG_WIDTH  <- 10
-FIG_HEIGHT <- 6
+FIG_WIDTH  <- 10*0.8
+FIG_HEIGHT <- 6*0.8
 OUTPUT_DIR <- "."  # same folder as this script
 INPUT_DIR  <- "."  # same folder as this script
 
@@ -93,7 +99,7 @@ theme_figure2 <- function() {
       axis.title        = element_text(size = FONT_SIZE_PT, colour = "black"),
       axis.title.x      = element_text(size = FONT_SIZE_PT, margin = margin(t = 3, unit = "pt")),
       axis.title.y      = element_text(size = FONT_SIZE_PT, margin = margin(r = 5, unit = "pt")),
-      legend.position   = c(0.985, 0.99),
+      legend.position   = c(0.985, 1.00),
       legend.justification = c("right", "top"),
       legend.text       = element_text(size = FONT_SIZE_PT),
       legend.title      = element_text(size = FONT_SIZE_PT),
@@ -142,8 +148,14 @@ bubble_data <- bubble_data %>%
     vjust_val = case_when(
       topic %in% c("Food", "Inside") & group == "Restaurants" ~ 4.0,
       topic %in% c("Food", "Inside")                          ~ -2.8,
-      group == "Restaurants"                                  ~ 2.5,
+      group == "Restaurants"                                  ~ 2.2,
       TRUE                                                    ~ -1.5
+    ),
+    # 0.5 = Centered
+    # 0.2 = Moves text Right (shifts the anchor to the left side of the text)
+    hjust_val = case_when(
+      group %in% c("Restaurants", "Drinks") ~ 0.4, 
+      TRUE                                  ~ 0.5
     )
   )
 
@@ -153,7 +165,7 @@ bubble_data <- bubble_data %>%
 
 pos <- position_dodge(width = DODGE_WIDTH)
 
-Figure2 <- ggplot(bubble_data, aes(x = topic, y = memory_score, colour = group)) +
+Figure2 <- ggplot(bubble_data, aes(x = topic, y = memory_score, colour = group, fill = group)) +
   geom_errorbar(
     aes(ymin = ci_lower, ymax = ci_upper),
     position  = pos,
@@ -163,23 +175,31 @@ Figure2 <- ggplot(bubble_data, aes(x = topic, y = memory_score, colour = group))
   geom_point(
     aes(size = bubble_size),
     position = pos,
-    alpha    = BUBBLE_ALPHA
+    alpha    = BUBBLE_ALPHA,
+    shape    = 21,          # <--- Critical: Allows separate fill & stroke
+    stroke   = 0.25          # <--- Optional: Makes the border slightly thicker/visible
   ) +
   geom_text(
     aes(
       label = pct_label, 
       vjust = vjust_val,
+      hjust = hjust_val,
       group = group
     ),
     position  = pos,
     size      = FONT_SIZE_GEOM,
     colour    = "black"
   ) +
-  scale_colour_manual(values = COL_GROUP) +
+  scale_colour_manual(values = COL_GROUP) +       # Borders & Error Bars (Dark)
+  scale_fill_manual(values = COL_GROUP_LIGHT) +   # Bubble Fills (Light)
+  
   scale_size_continuous(range = c(3, BUBBLE_MAXSIZE), guide = "none") +
   scale_y_continuous(limits = Y_LIMITS, breaks = Y_BREAKS, expand = expansion(add = c(0, 0))) +
-  labs(x = "Image topic", y = "Mean memory score", colour = NULL) +
-  guides(colour = guide_legend(override.aes = list(size = 3, alpha = 1))) +
+  labs(x = "Image topic", y = "Mean memory score", colour = NULL, fill = NULL) +
+  guides(
+    colour = guide_legend(override.aes = list(shape = 21, size = 5, fill = COL_GROUP_LIGHT, color = COL_GROUP, stroke = 0.25, linetype = 0)),
+    fill   = guide_legend(override.aes = list(shape = 21, size = 5, fill = COL_GROUP_LIGHT, color = COL_GROUP, stroke = 0.25, linetype = 0))
+  ) +
   theme_figure2()
 
 Figure2

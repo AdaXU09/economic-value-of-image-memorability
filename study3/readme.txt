@@ -9,6 +9,7 @@ study3/
 |-- readme.txt                  # This file
 |-- study3.ipynb                # Python analysis (data processing, OLS, t-tests)
 |-- model.Rmd                   # R analysis (mixed-effects models, ANOVA)
+|-- sensitivity_no_10_50_c5.R   # R analysis (appendix table C5, sensitivity check)
 |
 |-- data/
 |   |-- input/

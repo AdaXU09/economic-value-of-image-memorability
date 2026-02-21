@@ -1,0 +1,94 @@
+Run timestamp: 2026-02-21 15:43:31 +08
+Sensitivity specification: no 10-50 CNY range exclusion; keep original Niming prefilters.
+
+Participant flow counts:
+  Naodao raw: 150
+  Niming raw: 175
+  Niming removed marker row (','): 1
+  Niming removed age == -999: 24
+  Final participants for sensitivity model: 300
+  Final observations for sensitivity model: 2400
+
+Model formula:
+score ~ memory_score * type + quality + attract + mood + (1 + 
+    memory_score | participant)
+
+=== Fixed + Random Effects Summary ===
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
+Formula: score ~ memory_score * type + quality + attract + mood + (1 +      memory_score | participant)
+   Data: model_df
+Control: lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e+05))
+
+REML criterion at convergence: 17302.2
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-5.4586 -0.5261 -0.0838  0.4391 19.1383 
+
+Random effects:
+ Groups      Name            Variance Std.Dev. Corr 
+ participant (Intercept)     82.96    9.108         
+             memory_scorelow 59.22    7.695    -0.90
+ Residual                    58.69    7.661         
+Number of obs: 2400, groups:  participant, 300
+
+Fixed effects:
+                              Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)                    24.2284     5.5171  306.1249   4.392 1.55e-05 ***
+memory_scorelow                -6.6397     0.8035 1130.3648  -8.263 3.94e-16 ***
+typedonut                      -2.8369     0.6441 1819.4174  -4.404 1.12e-05 ***
+typesandwich                   -1.7374     0.6278 1793.3872  -2.767 0.005708 ** 
+typewine                       -1.2988     0.6402 1811.5756  -2.029 0.042625 *  
+quality中质量                   1.6733     0.4534 2172.5683   3.690 0.000229 ***
+quality高质量                   2.9453     0.5589 2208.5039   5.270 1.50e-07 ***
+attract无吸引力                -1.2653     0.5985 2112.1454  -2.114 0.034626 *  
+attract有吸引力                 1.3109     0.6129 2100.3028   2.139 0.032567 *  
+mood负面                       -2.7264     6.6815  293.3132  -0.408 0.683533    
+mood中立                       -1.5870     5.4841  293.1375  -0.289 0.772490    
+mood正面                       -0.3813     5.4773  293.3159  -0.070 0.944546    
+mood非常正面                   -0.0697     5.4911  293.6059  -0.013 0.989882    
+memory_scorelow:typedonut       0.5889     0.8889 1794.7256   0.662 0.507736    
+memory_scorelow:typesandwich    3.6133     0.8895 1796.3572   4.062 5.08e-05 ***
+memory_scorelow:typewine        3.8486     0.9167 1827.7328   4.198 2.82e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+=== ANOVA (lmerTest) ===
+Type III Analysis of Variance Table with Satterthwaite's method
+                  Sum Sq Mean Sq NumDF   DenDF F value    Pr(>F)    
+memory_score      3987.1  3987.1     1  334.60 67.9351 3.882e-15 ***
+type              3355.1  1118.4     3 1812.50 19.0558 3.625e-12 ***
+quality           1646.7   823.3     2 2174.24 14.0285 8.841e-07 ***
+attract           2299.2  1149.6     2 2089.34 19.5874 3.733e-09 ***
+mood               242.4    60.6     4  296.52  1.0325    0.3907    
+memory_score:type 1713.7   571.2     3 1804.47  9.7328 2.269e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+=== Estimated Marginal Means (memory_score) ===
+ memory_score emmean   SE  df lower.CL upper.CL
+ high           23.4 1.44 370     20.5     26.2
+ low            18.7 1.36 301     16.1     21.4
+
+Results are averaged over the levels of: type, quality, attract, mood 
+Degrees-of-freedom method: kenward-roger 
+Confidence level used: 0.95 
+
+=== High - Low Contrast ===
+ contrast   estimate        SE     df t.ratio p.value
+ High - Low 4.626965 0.5614255 335.85   8.241 <0.0001
+
+Results are averaged over the levels of: type, quality, attract, mood 
+Degrees-of-freedom method: kenward-roger 
+
+=== Raw Within-Participant Differences by Type ===
+# A tibble: 4 × 4
+  type     n_pairs mean_diff  p_value
+  <chr>      <int>     <dbl>    <dbl>
+1 cake         300      8.92 4.15e-19
+2 donut        300      7.66 8.56e-28
+3 sandwich     300      4.42 1.70e- 9
+4 wine         300      2.8  6.20e- 5
+
+Raw overall within-participant mean difference (High - Low): 5.950833
+Raw paired Cohen's d: 0.6278613

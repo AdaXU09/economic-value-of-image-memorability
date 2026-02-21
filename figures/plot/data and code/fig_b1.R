@@ -47,8 +47,8 @@ LINE_SIZE      <- 0.25
 TICK_LENGTH_PT <- 5
 
 # Output size (inches)
-FIG_WIDTH  <- 14
-FIG_HEIGHT <- 7
+FIG_WIDTH  <- 14*0.7
+FIG_HEIGHT <- 7*0.7
 
 # Palette (match reference figure)
 COL_GROUP <- c(
@@ -57,13 +57,18 @@ COL_GROUP <- c(
   "Drinks"         = "#009E73"   # Bluish Green
 )
 
+COL_GROUP_LIGHT <- c(
+  "All businesses" = "#F4C29F",
+  "Restaurants"    = "#99C6E0",
+  "Drinks"         = "#99D8C5"
+)
+
 # Histogram bins
 BIN_BREAKS <- c(0, 50, 100, 150, 200, 300, 400, 500, Inf)
-BIN_LABELS <- c("1-50", "51-100", "101-150", "151-200",
-                "201-300", "301-400", "401-500", ">500")
-
+BIN_LABELS <- c("1–50", "51–100", "101–150", "151–200",
+                "201–300", "301–400", "401–500", ">500")
 # Panel A y-limit (proportions)
-Y_MAX_A <- 0.55
+Y_MAX_A <- 0.60
 
 # ==============================================================================
 # SHARED THEME
@@ -81,7 +86,7 @@ theme_b1 <- function() {
       axis.title        = element_text(size = FONT_SIZE_PT),
       
       # Plot title adjustment: Force size to match FONT_SIZE_PT
-      plot.title        = element_text(size = FONT_SIZE_PT, hjust = 0, vjust = 0.5, face = "plain"),
+      plot.title        = element_text(size = FONT_SIZE_PT, hjust = 0, vjust = 0.5, face = "bold"),
       
       legend.text       = element_text(size = FONT_SIZE_PT),
       legend.title      = element_blank(),
@@ -159,8 +164,8 @@ panel_a_labels <- d_panel_a %>%
   distinct()
 
 # 3. Create the plot
-panel_a <- ggplot(d_panel_a, aes(x = bin, y = pct, fill = group)) +
-  geom_col(width = 1, colour = "black", linewidth = LINE_SIZE) +
+panel_a <- ggplot(d_panel_a, aes(x = bin, y = pct, fill = group, colour = group)) +
+  geom_col(width = 1, linewidth = LINE_SIZE) +
   
   # Percentage labels above bars
   geom_text(
@@ -185,7 +190,8 @@ panel_a <- ggplot(d_panel_a, aes(x = bin, y = pct, fill = group)) +
   ) +
   
   scale_y_continuous(limits = c(0, Y_MAX_A), expand = c(0, 0)) +
-  scale_fill_manual(values = COL_GROUP) +
+  scale_fill_manual(values = COL_GROUP_LIGHT) +
+  scale_colour_manual(values = COL_GROUP) +
   labs(
     title = "a. Distribution of review counts",
     x = "Review count", 
@@ -256,11 +262,11 @@ P_B <- ggplot(data_all, aes(x = review_count, colour = group)) +
   
   # Annotations for reference lines
   annotate(
-    "text", x = 600, y = 0.70, label = "67th percentile cutoff",
+    "text", x = 250, y = 0.70, label = "67th percentile cutoff",
     hjust = 0, family = FONT_FAMILY, size = FONT_SIZE_GEOM, colour = "black"
   ) +
   annotate(
-    "text", x = 3.5, y = 0.95, label = paste0("Top tertile: >", threshold_tertile, " reviews"),
+    "text", x = 2, y = 0.95, label = paste0("Top tertile: >", threshold_tertile, " reviews"),
     hjust = 0, family = FONT_FAMILY, size = FONT_SIZE_GEOM, colour = "black"
   ) +
   
@@ -281,10 +287,16 @@ P_B <- ggplot(data_all, aes(x = review_count, colour = group)) +
   ) +
   
   theme(
-    legend.position      = c(0.72, 0.18),
+    legend.position      = c(0.62, 0.18),
     legend.justification = c(0, 0),
     legend.background    = element_blank(),
-    legend.key           = element_blank()
+    legend.key           = element_blank(),
+
+    plot.title.position   = "plot",
+    plot.title = element_text(
+      margin = margin(b = 15),  # Adjust this number (e.g., 10, 15, 20) for more/less space
+      size   = FONT_SIZE_PT    # Ensure font size stays consistent
+    )
   )
 
 # 2. Manual Clip Adjustment
